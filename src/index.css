@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", serif;
+
+  --color-primary: #7a5900;
+  --color-primary-container: #e5b13a;
+  --color-on-primary: #ffffff;
+  --color-secondary: #a93627;
+  --color-secondary-container: #fd735f;
+  --color-on-secondary: #ffffff;
+  --color-surface: #fff8f0;
+  --color-surface-container: #f6eddb;
+  --color-surface-container-low: #fcf3e1;
+  --color-surface-container-high: #f1e7d6;
+  --color-surface-container-highest: #ebe1d0;
+  --color-on-surface: #1f1b11;
+  --color-on-surface-variant: #4f4635;
+  --color-outline: #817663;
+  --color-outline-variant: #d3c5af;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-sans;
+  }
+}
+
+@layer components {
+  .glass-paper {
+    @apply bg-surface-container-low/70 backdrop-blur-md;
+  }
+  
+  .chinese-accent {
+    @apply absolute font-serif text-[8rem] text-outline-variant opacity-20 z-0 pointer-events-none;
+  }
+}
