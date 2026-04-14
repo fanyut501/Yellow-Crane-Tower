@@ -82,6 +82,8 @@ export default function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isCinematic, setIsCinematic] = useState(false);
+  const [collectedFragments, setCollectedFragments] = useState<string[]>([]);
+  const [puzzlePlaced, setPuzzlePlaced] = useState<boolean[]>(new Array(6).fill(false));
 
   const phaseQuizzes = QUIZZES[phase] || [];
   const currentQuiz = phaseQuizzes[currentQuestionIndex] || phaseQuizzes[0];
@@ -114,6 +116,8 @@ export default function App() {
     setProgress(0);
     setTimeLeft(15);
     setCurrentQuestionIndex(0);
+    setCollectedFragments([]);
+    setPuzzlePlaced(new Array(6).fill(false));
   };
 
   const handleReset = () => {
@@ -128,6 +132,8 @@ export default function App() {
     setTimeLeft(15);
     setIsPaused(false);
     setIsCinematic(false);
+    setCollectedFragments([]);
+    setPuzzlePlaced(new Array(6).fill(false));
   };
 
   const handleAnswer = (optionId: string) => {
@@ -139,7 +145,9 @@ export default function App() {
     
     if (correct) {
       playSound(SOUNDS.CORRECT);
-      setFeedback('回答正确！正在推进工程...');
+      setFeedback('回答正确！获得建筑碎片...');
+      setCollectedFragments(prev => [...prev, currentQuiz.fragmentImage]);
+      
       setTimeout(() => {
         if (currentQuestionIndex < phaseQuizzes.length - 1) {
           // Move to next question in same phase
@@ -158,14 +166,8 @@ export default function App() {
             setProgress(90);
             setShowQuiz(false);
           } else if (phase === 'ROOFING') {
-            setIsCinematic(true);
+            setPhase('PUZZLE');
             setShowQuiz(false);
-            setTimeout(() => {
-              playSound(SOUNDS.SUCCESS);
-              setPhase('SUCCESS');
-              setProgress(100);
-              setIsCinematic(false);
-            }, 4000); // 4 seconds for cinematic
           }
           setCurrentQuestionIndex(0);
           setTimeLeft(15);
@@ -239,6 +241,112 @@ export default function App() {
             </div>
           </div>
         </footer>
+      </div>
+    );
+  }
+
+  if (phase === 'PUZZLE') {
+    const allPlaced = puzzlePlaced.every(p => p);
+    
+    const handlePlace = (index: number) => {
+      if (puzzlePlaced[index]) return;
+      playSound(SOUNDS.CLICK);
+      const newPlaced = [...puzzlePlaced];
+      newPlaced[index] = true;
+      setPuzzlePlaced(newPlaced);
+      
+      if (newPlaced.every(p => p)) {
+        setTimeout(() => {
+          setIsCinematic(true);
+          setTimeout(() => {
+            playSound(SOUNDS.SUCCESS);
+            setPhase('SUCCESS');
+            setProgress(100);
+            setIsCinematic(false);
+          }, 4000);
+        }, 1000);
+      }
+    };
+
+    return (
+      <div className="relative min-h-screen flex flex-col items-center justify-center bg-surface overflow-hidden p-8">
+        <div className="absolute inset-0 z-0 opacity-20">
+          <img src={IMAGES.BACKGROUND_SNAKE_HILL} className="w-full h-full object-cover" alt="Background" referrerPolicy="no-referrer" />
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 text-center mb-12"
+        >
+          <h2 className="text-4xl font-serif text-primary font-bold mb-2 tracking-widest">营建拼图</h2>
+          <p className="text-on-surface-variant tracking-widest">请将收集到的建筑碎片归位，重现名楼风采</p>
+        </motion.div>
+
+        <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl w-full">
+          {collectedFragments.map((img, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handlePlace(i)}
+              className={`relative aspect-square bg-surface-container-high border-4 transition-all cursor-pointer overflow-hidden rounded-lg shadow-xl ${
+                puzzlePlaced[i] ? 'border-green-500 opacity-50 grayscale' : 'border-primary hover:border-secondary'
+              }`}
+            >
+              <img src={img} className="w-full h-full object-cover" alt={`Fragment ${i}`} referrerPolicy="no-referrer" />
+              {puzzlePlaced[i] && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <CheckCircle2 size={48} className="text-white" />
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-12 relative z-10 w-full max-w-md">
+          <ProgressBar value={(puzzlePlaced.filter(p => p).length / 6) * 100} label="拼图进度" />
+        </div>
+
+        {/* Cinematic Tower Appearance (same as main view) */}
+        <AnimatePresence>
+          {isCinematic && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-surface flex flex-col items-center justify-center overflow-hidden"
+            >
+              <motion.div
+                initial={{ scale: 0.5, y: 100, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                transition={{ duration: 3, ease: "easeOut" }}
+                className="relative w-full h-full flex items-center justify-center"
+              >
+                <img 
+                  src={IMAGES.COMPLETED_TOWER} 
+                  className="max-h-[80vh] object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)]" 
+                  alt="Tower Appearing"
+                  referrerPolicy="no-referrer"
+                />
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 1, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 bg-gradient-to-t from-primary-container/20 to-transparent pointer-events-none"
+                />
+              </motion.div>
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+                className="text-4xl font-serif text-primary mt-8 tracking-[1em] font-bold"
+              >
+                名楼重现
+              </motion.h2>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }

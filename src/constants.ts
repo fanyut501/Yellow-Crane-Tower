@@ -26,7 +26,7 @@ export const SOUNDS = {
   TRANSITION: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
 };
 
-export type GamePhase = "START" | "FOUNDATION" | "STRUCTURE" | "ROOFING" | "SUCCESS";
+export type GamePhase = "START" | "FOUNDATION" | "STRUCTURE" | "ROOFING" | "PUZZLE" | "SUCCESS";
 
 export interface QuizQuestion {
   id: string;
@@ -34,6 +34,7 @@ export interface QuizQuestion {
   options: { id: string; text: string }[];
   correctAnswer: string;
   hint: string;
+  fragmentImage: string;
 }
 
 export const QUIZZES: Record<string, QuizQuestion[]> = {
@@ -49,6 +50,7 @@ export const QUIZZES: Record<string, QuizQuestion[]> = {
       ],
       correctAnswer: "B",
       hint: "黄鹤楼屹立于蛇山之巅，基础必须深入岩层，方能抵御大江之上的狂风。",
+      fragmentImage: IMAGES.BACKGROUND_SNAKE_HILL,
     },
     {
       id: "f2",
@@ -60,6 +62,7 @@ export const QUIZZES: Record<string, QuizQuestion[]> = {
       ],
       correctAnswer: "A",
       hint: "花岗岩质地坚硬，抗压强度高，是大型古建筑地基的首选。",
+      fragmentImage: IMAGES.STONE,
     }
   ],
   STRUCTURE: [
@@ -74,6 +77,7 @@ export const QUIZZES: Record<string, QuizQuestion[]> = {
       ],
       correctAnswer: "B",
       hint: "斗拱是中国木构架建筑结构的关键性部件，其具有承重、装饰、防震及出挑屋檐等多重作用。",
+      fragmentImage: IMAGES.TIMBER,
     },
     {
       id: "s2",
@@ -85,6 +89,7 @@ export const QUIZZES: Record<string, QuizQuestion[]> = {
       ],
       correctAnswer: "A",
       hint: "榫卯是传统木构建筑的灵魂，无需一钉一铆即可实现极高的结构强度。",
+      fragmentImage: IMAGES.TIMBER,
     }
   ],
   ROOFING: [
@@ -98,6 +103,7 @@ export const QUIZZES: Record<string, QuizQuestion[]> = {
       ],
       correctAnswer: "B",
       hint: "凡屋盖必先立柱，后架梁，最终施瓦。飞檐者，如鸟斯革，如翚斯飞。",
+      fragmentImage: IMAGES.GLAZED_TILE,
     },
     {
       id: "r2",
@@ -108,7 +114,8 @@ export const QUIZZES: Record<string, QuizQuestion[]> = {
         { id: "C", text: "滴水" },
       ],
       correctAnswer: "A",
-      hint: "蹲兽不仅是装饰，在古代还象征着建筑的等级和避火消灾的愿望。",
+      hint: "蹲兽不仅是装饰，在古代还象征着建筑的等级 and 避火消灾的愿望。",
+      fragmentImage: IMAGES.DRAGON_FINIAL,
     }
   ],
 };
